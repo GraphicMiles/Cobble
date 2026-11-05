@@ -1,49 +1,57 @@
 # Cobble
 
-Cobble is a lightweight Android screen recorder focused on stability and small size.
+A lightweight Android screen recorder. MediaProjection captures the display,
+MediaCodec encodes H.264 and MediaMuxer writes an MP4, with the file saved to
+MediaStore or a folder you choose.
 
-## What this build includes
+## Why it exists
 
-- Minimal native Android UI
-- Native Java recording engine
-- MediaProjection + VirtualDisplay + MediaCodec + MediaMuxer
-- MP4 + H.264 output
-- MediaStore saving by default
-- Optional SAF custom folder saving
-- Foreground service for background-safe recording
-- Quick Settings tile fallback for reliable global control
+Screen recorders on Android tend to be large, ad-supported, or fragile at the
+edges: recording stops when the app is backgrounded, the file is unplayable, or
+the permission prompt is handled in a way that breaks on the next release. Cobble
+is a small native app that does one job and survives being left running.
 
-## Why this version is native-first
+This build is native-first. The earlier Flutter packaging made the APK much
+larger for a utility that draws almost nothing, so the current version keeps the
+recording features and drops the framework.
 
-The earlier Flutter-based packaging made the APK much larger and introduced avoidable complexity for a utility app. To keep the app lightweight and reduce crash risk, this repo now builds a small native Android implementation while preserving the important recording features.
+## What you can do
 
-## Important Android limitation
+- **Record the screen** to MP4, H.264, from a minimal native interface.
+- **Keep recording in the background**, through a foreground service.
+- **Start and stop from the Quick Settings tile**, which works from anywhere.
+- **Save to `Movies/Screen Recorder/`** by default, or pick a folder through the
+  Storage Access Framework.
+- **Stop from the notification** while a recording is running.
+- **Triple-tap to start** while the Cobble screen is open.
 
-A truly invisible system-wide triple-tap detector is not available to ordinary Android apps without overlays or elevated privileges.
+## What is not here
 
-So this build uses:
+- No editing, trimming, GIF export or upload.
+- No audio mixing controls beyond what the platform capture provides.
+- A system-wide triple-tap detector is not available to ordinary apps without
+  overlays or elevated privileges, so the global control is the Quick Settings
+  tile. That is a platform limit, not a missing feature.
+- Android only, and the capture depends on the device's encoder support.
 
-- local triple-tap while the Cobble screen is open
-- Quick Settings tile for reliable global start/stop fallback
-- notification stop action during recording
-
-## Storage
-
-Default save location:
-
-- `Movies/Screen Recorder/`
-
-Optional:
-
-- a user-selected SAF folder for future recordings
-
-## Build locally
+## Build
 
 ```bash
 cd android
 ./gradlew :app:assembleRelease
 ```
 
-## GitHub Actions
+`.github/workflows/android-apk.yml` builds a single installable release APK and
+uploads it as `cobble-release-apk`.
 
-The workflow builds a single installable release APK and uploads it as `cobble-release-apk`.
+## How it is built
+
+```
+android/        the native app: UI, recording engine, service, tile
+lib/            shared Dart-facing pieces kept from the Flutter build
+pubspec.yaml    the remaining Flutter shell
+```
+
+## Licence
+
+No licence file is included in this repository.
